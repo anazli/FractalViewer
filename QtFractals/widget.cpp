@@ -1,28 +1,36 @@
 #include "widget.h"
 
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <QSpinBox>
 
 Widget::Widget(QWidget *parent) : QWidget{parent} {
   setParent(parent);
 
   m_grid = new QGridLayout(this);
-
-  QLabel *realLabel = new QLabel(this);
-  realLabel->setText(tr("Real Number"));
-  QLabel *imaginLabel = new QLabel(this);
-  imaginLabel->setText(tr("Imaginary Number"));
   m_imageLabel = new QLabel(this);
-  m_imageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+  QHBoxLayout *realBox = new QHBoxLayout(this);
+  QLabel *realLabel = new QLabel(this);
+  realLabel->setText(tr("Real Number:"));
   QSpinBox *realNumber = new QSpinBox(this);
-  QSpinBox *imgNumber = new QSpinBox(this);
+  realBox->addWidget(realLabel);
+  realBox->addWidget(realNumber);
 
-  m_grid->addWidget(realLabel, 0, 0, 1, 1);
-  m_grid->addWidget(realNumber, 1, 0, 1, 1);
-  m_grid->addWidget(imaginLabel, 2, 0, 1, 1);
-  m_grid->addWidget(imgNumber, 3, 0, 1, 1);
-  m_grid->addWidget(m_imageLabel, 0, 1, 4, 1);
-  m_grid->setAlignment(Qt::AlignTop);
+  QHBoxLayout *imgBox = new QHBoxLayout(this);
+  QLabel *imgLabel = new QLabel(this);
+  imgLabel->setText(tr("Img. Number:"));
+  QSpinBox *imgNumber = new QSpinBox(this);
+  imgBox->addWidget(imgLabel);
+  imgBox->addWidget(imgNumber);
+
+  QPushButton *genButton = new QPushButton("Generate Image", this);
+
+  m_grid->addWidget(m_imageLabel, 0, 0, 1, 2);
+  m_grid->addItem(realBox, 1, 0, 1, 1);
+  m_grid->addItem(imgBox, 2, 0, 1, 1);
+  m_grid->addWidget(genButton, 1, 1, 2, 1);
+  m_grid->setAlignment(Qt::AlignCenter);
   this->setLayout(m_grid);
   updateImageData();
 }
