@@ -50,5 +50,11 @@ compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*
+*.creator
+*.cflags
+*.config
+*.files
+*.includes
+*.cxxflags
 
 *_qmlcache.qrc
