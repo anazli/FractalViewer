@@ -4,11 +4,14 @@
 #include <QPushButton>
 #include <QSpinBox>
 
-Widget::Widget(QWidget *parent) : QWidget{parent} {
+Widget::Widget(QWidget *parent, int imWidth, int imHeight)
+    : QWidget{parent}, m_imageWidth{imWidth}, m_imageHeight{imHeight} {
   setParent(parent);
 
   m_grid = new QGridLayout(this);
   m_imageLabel = new QLabel(this);
+  QImage im(QSize(m_imageWidth, m_imageHeight), QImage::Format_ARGB32);
+  m_imageLabel->setPixmap(QPixmap::fromImage(im));
 
   QHBoxLayout *realBox = new QHBoxLayout(this);
   QLabel *realLabel = new QLabel(this);
@@ -32,23 +35,27 @@ Widget::Widget(QWidget *parent) : QWidget{parent} {
   m_grid->addWidget(genButton, 1, 1, 2, 1);
   m_grid->setAlignment(Qt::AlignCenter);
   this->setLayout(m_grid);
-  updateImageData();
+
+  QObject::connect(genButton, &QPushButton::clicked, this,
+                   &Widget::buttonClicked);
 }
 
 void Widget::updateImageData() {
-  auto width = 500;
-  auto height = 500;
   auto max_color = 255;
-  QImage im(QSize(width, height), QImage::Format_ARGB32);
-  for (int i = 0; i < width; ++i) {
-    for (int j = 0; j < height; ++j) {
-      auto r = max_color * static_cast<float>(i) / static_cast<float>(width);
-      auto g = max_color * static_cast<float>(j) / static_cast<float>(height);
-      auto b = max_color * static_cast<float>(j) / static_cast<float>(height);
+  QImage im(QSize(m_imageWidth, m_imageHeight), QImage::Format_ARGB32);
+  for (int i = 0; i < m_imageWidth; ++i) {
+    for (int j = 0; j < m_imageHeight; ++j) {
+      auto r =
+          max_color * static_cast<float>(i) / static_cast<float>(m_imageWidth);
+      auto g =
+          max_color * static_cast<float>(j) / static_cast<float>(m_imageHeight);
+      auto b =
+          max_color * static_cast<float>(j) / static_cast<float>(m_imageHeight);
       QColor pixel = QColor::fromRgb(r, g, b);
       im.setPixelColor(i, j, pixel);
     }
   }
-  QPixmap pm = QPixmap::fromImage(im);
-  m_imageLabel->setPixmap(pm);
+  m_imageLabel->setPixmap(QPixmap::fromImage(im));
 }
+
+void Widget::buttonClicked() { updateImageData(); }

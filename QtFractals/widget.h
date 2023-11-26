@@ -8,15 +8,19 @@
 class Widget : public QWidget {
   Q_OBJECT
  public:
-  explicit Widget(QWidget *parent = nullptr);
+  explicit Widget(QWidget *parent = nullptr, int imWidth = 500,
+                  int imHeight = 500);
 
   void updateImageData();
 
- signals:
+ private slots:
+  void buttonClicked();
 
  private:
   QGridLayout *m_grid;
   QLabel *m_imageLabel;
+  int m_imageWidth;
+  int m_imageHeight;
 };
 
 #endif  // WIDGET_H
