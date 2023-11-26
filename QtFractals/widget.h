@@ -8,19 +8,24 @@
 class Widget : public QWidget {
   Q_OBJECT
  public:
-  explicit Widget(QWidget *parent = nullptr, int imWidth = 500,
-                  int imHeight = 500);
+  explicit Widget(QWidget *parent = nullptr);
 
   void updateImageData();
 
  private slots:
-  void buttonClicked();
+  void genImageButtonClicked();
+  void realSpinboxValueChanged(double d);
+  void imgSpinboxValueChanged(double d);
 
  private:
   QGridLayout *m_grid;
   QLabel *m_imageLabel;
-  int m_imageWidth;
-  int m_imageHeight;
+  int m_imageWidth = 500;
+  int m_imageHeight = 500;
+  double m_realNumber = 0.;
+  double m_imgNumber = 0.;
+
+  void setupGrid();
 };
 
 #endif  // WIDGET_H
