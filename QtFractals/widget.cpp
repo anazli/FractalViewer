@@ -1,10 +1,12 @@
 #include "widget.h"
 
+#include <QColorDialog>
 #include <QComboBox>
 #include <QDebug>
 #include <QDoubleSpinBox>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QtMath>
 #include <complex>
 
 Widget::Widget(QWidget *parent) : QWidget{parent} {
@@ -13,17 +15,16 @@ Widget::Widget(QWidget *parent) : QWidget{parent} {
 }
 
 void Widget::CreateMdlbrotSet() {
-  auto maxColor = 255;
   auto maxIter = 55;
-
   QImage im(QSize(m_imageWidth, m_imageHeight), QImage::Format_ARGB32);
   QColor pixel;
 
   for (int i = 0; i < m_imageWidth; ++i) {
     for (int j = 0; j < m_imageHeight; ++j) {
-      std::complex<double> C(static_cast<double>(i) / m_imageWidth - 1.5,
-                             static_cast<double>(j) / m_imageHeight - 0.5);
-      std::complex<double> Z(m_realNumber, m_imgNumber);
+      std::complex<double> C(
+          static_cast<double>(i) / m_imageWidth - m_realNumber,
+          static_cast<double>(j) / m_imageHeight - m_imgNumber);
+      std::complex<double> Z(0.f, 0.f);
 
       int iterations = 0;
       while (abs(Z) < 2.0 && iterations < maxIter) {
@@ -32,8 +33,8 @@ void Widget::CreateMdlbrotSet() {
       }
 
       if (iterations < maxIter) {
-        int color = int(maxColor * iterations / maxIter);
-        pixel = QColor::fromRgb(color, 0, 0);
+        auto color = static_cast<double>(255 * iterations) / maxIter;
+        pixel = QColor::fromRgb(color, 0, color);
       } else {
         pixel = QColor::fromRgb(0, 0, 0);
       }
@@ -44,30 +45,31 @@ void Widget::CreateMdlbrotSet() {
 }
 
 void Widget::CreateJuliaSet() {
-  auto maxColor = 255;
-  auto maxIter = 35;
+  auto maxIter = 55;
+  auto iterations = 0;
   std::complex<double> C(m_realNumber, m_imgNumber);
-
   QImage im(QSize(m_imageWidth, m_imageHeight), QImage::Format_ARGB32);
   QColor pixel;
-
   for (int i = 0; i < m_imageWidth; ++i) {
     for (int j = 0; j < m_imageHeight; ++j) {
-      std::complex<double> Z(static_cast<double>(i) / m_imageWidth - 0.5,
-                             static_cast<double>(j) / m_imageHeight - 0.5);
-      int iterations = 0;
-
-      while (abs(Z) < 2.0 && iterations < maxIter) {
-        Z = Z * Z + C;
-        iterations++;
+      std::complex<double> Z(static_cast<double>(i) / m_imageWidth - 1.5,
+                             static_cast<double>(j) / m_imageHeight - 1.5);
+      /*for (iterations = 0; iterations < maxIter; ++iterations) {
+        if (abs(Z) < 2.0) {
+          Z = Z * Z + C;
+        } else {
+          break;
+        }
+      }*/
+      for (iterations = 0; iterations < maxIter; ++iterations) {
+        if (abs(Z.imag()) < 50.) {
+          Z = C * qSin(Z);
+        } else {
+          break;
+        }
       }
-
-      if (iterations < maxIter) {
-        int color = int(maxColor * iterations / maxIter);
-        pixel = QColor::fromRgb(color, color, 0);
-      } else {
-        pixel = QColor::fromRgb(0, 0, 0);
-      }
+      auto color = static_cast<double>(255 * iterations) / maxIter;
+      pixel = QColor::fromRgb(color, 0, color);
       im.setPixelColor(i, j, pixel);
     }
   }
@@ -92,6 +94,12 @@ void Widget::setComboBoxChanged(int index) {
   } else if (index == 1) {
     m_set = Set::Julia;
   }
+}
+
+void Widget::colorButtonClicked() {
+  m_pixelColor =
+      QColorDialog::getColor(m_pixelColor, this, "Choose Text Color");
+  qDebug() << m_pixelColor;
 }
 
 void Widget::setupGrid() {
@@ -135,10 +143,15 @@ void Widget::setupGrid() {
   QObject::connect(cbox, &QComboBox::activated, this,
                    &Widget::setComboBoxChanged);
 
+  QPushButton *colorButton = new QPushButton("Change Color", this);
+  QObject::connect(colorButton, &QPushButton::clicked, this,
+                   &Widget::colorButtonClicked);
+
   m_grid->addWidget(m_imageLabel, 0, 0, 1, 2);
   m_grid->addItem(realBox, 1, 0, 1, 1);
   m_grid->addItem(imgBox, 2, 0, 1, 1);
   m_grid->addWidget(genButton, 1, 1, 1, 1);
-  m_grid->addWidget(cbox, 2, 1, 2, 1);
+  m_grid->addWidget(cbox, 2, 1, 1, 1);
+  m_grid->addWidget(colorButton, 3, 1, 1, 1);
   m_grid->setAlignment(Qt::AlignCenter);
 }

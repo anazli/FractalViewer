@@ -18,6 +18,7 @@ class Widget : public QWidget {
   void realSpinboxValueChanged(double d);
   void imgSpinboxValueChanged(double d);
   void setComboBoxChanged(int index);
+  void colorButtonClicked();
 
  private:
   enum class Set { Mandelbrot, Julia };
@@ -28,6 +29,7 @@ class Widget : public QWidget {
   int m_imageHeight = 800;
   double m_realNumber = 0.;
   double m_imgNumber = 0.;
+  QColor m_pixelColor;
   Set m_set;
 
   void setupGrid();
