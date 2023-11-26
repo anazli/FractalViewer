@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QSpinBox>
+#include <complex>
 
 Widget::Widget(QWidget *parent, int imWidth, int imHeight)
     : QWidget{parent}, m_imageWidth{imWidth}, m_imageHeight{imHeight} {
@@ -41,17 +42,26 @@ Widget::Widget(QWidget *parent, int imWidth, int imHeight)
 }
 
 void Widget::updateImageData() {
-  auto max_color = 255;
+  auto maxColor = 255;
+  auto maxIter = 55;
   QImage im(QSize(m_imageWidth, m_imageHeight), QImage::Format_ARGB32);
+  QColor pixel;
   for (int i = 0; i < m_imageWidth; ++i) {
     for (int j = 0; j < m_imageHeight; ++j) {
-      auto r =
-          max_color * static_cast<float>(i) / static_cast<float>(m_imageWidth);
-      auto g =
-          max_color * static_cast<float>(j) / static_cast<float>(m_imageHeight);
-      auto b =
-          max_color * static_cast<float>(j) / static_cast<float>(m_imageHeight);
-      QColor pixel = QColor::fromRgb(r, g, b);
+      std::complex<float> C(static_cast<float>(i) / m_imageWidth - 1.5f,
+                            static_cast<float>(j) / m_imageHeight - 0.5f);
+      std::complex<float> Z(0.f, 0.f);
+      int iterations = 0;
+      while (abs(Z) < 2.0 && iterations < maxIter) {
+        Z = Z * Z + C;
+        iterations++;
+      }
+      if (iterations < maxIter) {
+        int color = int(maxColor * iterations / maxIter);
+        pixel = QColor::fromRgb(color, 0, 0);
+      } else {
+        pixel = QColor::fromRgb(0, 0, 0);
+      }
       im.setPixelColor(i, j, pixel);
     }
   }
