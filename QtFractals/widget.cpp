@@ -131,9 +131,9 @@ void Widget::setupGrid() {
   QComboBox *cbox = new QComboBox(this);
   cbox->addItem("Mandelbrot Set");
   cbox->addItem("Julia Set");
+  m_set = static_cast<Set>(cbox->currentIndex());
   QObject::connect(cbox, &QComboBox::activated, this,
                    &Widget::setComboBoxChanged);
-  cbox->setCurrentIndex(0);
 
   m_grid->addWidget(m_imageLabel, 0, 0, 1, 2);
   m_grid->addItem(realBox, 1, 0, 1, 1);
